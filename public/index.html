@@ -250,6 +250,11 @@
     .context-list li:last-child { border-bottom: none; }
     .context-list li i { font-size: 13px; color: var(--text3); margin-top: 2px; flex-shrink: 0; }
 
+    .search-terms-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .search-terms-label { font-size: 11px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+    .search-terms-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .search-term-tag { font-size: 12px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; line-height: 1.5; }
+
     /* SUMMARY */
     .summary-block {
       background: var(--surface);
@@ -460,6 +465,7 @@ function levelBadge(level) {
 function renderPlatform(d, type) {
   const score = Math.round(d.visibility_score);
   const note = type === "gpt" ? d.training_data_presence : d.indexing_notes;
+  const terms = (d.search_terms || []).slice(0, 5);
   return `
     <div style="margin-bottom:4px;">
       <span class="score-big">${score}</span><span class="score-denom">/100</span>
@@ -470,7 +476,14 @@ function renderPlatform(d, type) {
     <ul class="context-list">
       ${(d.contexts || []).slice(0,3).map(c => `<li><i class="ti ti-point-filled"></i><span>${c}</span></li>`).join("")}
       ${note ? `<li><i class="ti ti-info-circle"></i><span style="font-style:italic;font-size:12px;">${note}</span></li>` : ""}
-    </ul>`;
+    </ul>
+    ${terms.length ? `
+    <div class="search-terms-section">
+      <p class="search-terms-label"><i class="ti ti-search" style="font-size:11px;margin-right:4px;"></i>Synlig på søgetermer</p>
+      <div class="search-terms-list">
+        ${terms.map(t => `<span class="search-term-tag">${t}</span>`).join("")}
+      </div>
+    </div>` : ""}`;
 }
 
 async function runCheck() {
