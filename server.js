@@ -21,7 +21,7 @@ Svar KUN med et rent JSON-objekt — ingen backticks, ingen forklaringstekst, ku
     "level": "høj eller middel eller lav",
     "estimated_mentions": "estimat fx 10-20 gange om måneden",
     "contexts": ["kontekst 1 hvor brandet nævnes", "kontekst 2", "kontekst 3"],
-    "search_terms": ["søgeterm eller spørgsmål 1", "søgeterm 2", "søgeterm 3", "søgeterm 4", "søgeterm 5"],
+    "search_terms": ["søgeterm 1", "søgeterm 2", "søgeterm 3", "søgeterm 4", "søgeterm 5", "søgeterm 6", "søgeterm 7", "søgeterm 8", "søgeterm 9", "søgeterm 10"],
     "training_data_presence": "kort forklaring"
   },
   "google_ai": {
@@ -29,7 +29,7 @@ Svar KUN med et rent JSON-objekt — ingen backticks, ingen forklaringstekst, ku
     "level": "høj eller middel eller lav",
     "estimated_mentions": "estimat",
     "contexts": ["kontekst 1", "kontekst 2", "kontekst 3"],
-    "search_terms": ["søgeterm eller spørgsmål 1", "søgeterm 2", "søgeterm 3", "søgeterm 4", "søgeterm 5"],
+    "search_terms": ["søgeterm 1", "søgeterm 2", "søgeterm 3", "søgeterm 4", "søgeterm 5", "søgeterm 6", "søgeterm 7", "søgeterm 8", "søgeterm 9", "søgeterm 10"],
     "indexing_notes": "noter om Google-indeksering"
   },
   "summary": "2-3 sætninger om samlet AI-synlighed",
@@ -41,7 +41,7 @@ Svar KUN med et rent JSON-objekt — ingen backticks, ingen forklaringstekst, ku
   ]
 }
 
-search_terms skal være konkrete søgeforespørgsler eller spørgsmål som brugere stiller i ChatGPT/Google, hvor dette brand/domæne sandsynligvis dukker op i svaret. Fx "hvad er den bedste marketingbureau i Danmark" eller "anmeld novo nordisk aktie". Vær realistisk — for ukendte brands, vis de få termer hvor de muligvis dukker op. Svar på dansk.`;
+search_terms skal være konkrete søgeforespørgsler eller spørgsmål som brugere stiller i ChatGPT/Google, hvor dette brand/domæne sandsynligvis dukker op i svaret. Giv så mange relevante termer som muligt — minimum 8, gerne 10-15 hvis brandet er velkendt. Fx "hvad er den bedste marketingbureau i Danmark" eller "anmeld novo nordisk aktie". Vær realistisk — for ukendte brands, vis de termer hvor de muligvis dukker op. Svar på dansk.`;
 
 app.post("/api/analyse", async (req, res) => {
   const { domain } = req.body;
@@ -60,7 +60,7 @@ app.post("/api/analyse", async (req, res) => {
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
         temperature: 0.4,
-        max_tokens: 2000,
+        max_tokens: 3000,
         messages: [{ role: "user", content: PROMPT(domain) }],
       }),
     });

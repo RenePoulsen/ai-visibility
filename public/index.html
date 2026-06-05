@@ -465,7 +465,7 @@ function levelBadge(level) {
 function renderPlatform(d, type) {
   const score = Math.round(d.visibility_score);
   const note = type === "gpt" ? d.training_data_presence : d.indexing_notes;
-  const terms = (d.search_terms || []).slice(0, 5);
+  const terms = (d.search_terms || []);
   return `
     <div style="margin-bottom:4px;">
       <span class="score-big">${score}</span><span class="score-denom">/100</span>
