@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Synlighedstjek — Er dit brand synligt i AI?</title>
+  <meta name="description" content="Tjek hvor synligt dit domæne er i ChatGPT og Google AI Overview. Gratis AI-synlighedsanalyse." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F7F5F0;
+      --surface: #FFFFFF;
+      --surface2: #F0EDE6;
+      --border: #E2DDD6;
+      --border2: #CBC6BF;
+      --text: #1A1714;
+      --text2: #6B6560;
+      --text3: #9E9892;
+      --accent: #1A1714;
+      --gpt-color: #10A37F;
+      --google-color: #1A73E8;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.3px;
+    }
+    .nav-badge {
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--text);
+      color: var(--bg);
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    /* HERO */
+    .hero {
+      max-width: 720px;
+      margin: 5rem auto 3.5rem;
+      padding: 0 2rem;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 6vw, 58px);
+      line-height: 1.08;
+      color: var(--text);
+      letter-spacing: -1.5px;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--text2);
+    }
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text2);
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    /* SEARCH */
+    .search-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .search-box {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-box:focus-within {
+      border-color: var(--text);
+      box-shadow: 0 0 0 3px rgba(26,23,20,0.08);
+    }
+    .search-box input {
+      flex: 1;
+      height: 54px;
+      padding: 0 1.25rem;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+    }
+    .search-box input::placeholder { color: var(--text3); }
+    .search-box button {
+      height: 54px;
+      padding: 0 1.5rem;
+      background: var(--text);
+      color: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .search-box button:hover { opacity: 0.85; }
+    .search-box button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .search-hint {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    /* RESULTS */
+    .results {
+      max-width: 840px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+      display: none;
+    }
+    .results.visible { display: block; }
+
+    .results-domain {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .results-domain .label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 6px;
+    }
+    .results-domain .domain-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 600px) { .cards-grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      min-height: 260px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+    .card-icon.gpt { background: rgba(16,163,127,0.1); color: var(--gpt-color); }
+    .card-icon.google { background: rgba(26,115,232,0.1); color: var(--google-color); }
+    .card-platform { font-size: 15px; font-weight: 500; color: var(--text); }
+    .card-sub { font-size: 12px; color: var(--text3); }
+
+    .score-big { font-family: 'DM Serif Display', serif; font-size: 48px; line-height: 1; color: var(--text); }
+    .score-denom { font-size: 16px; color: var(--text3); margin-left: 2px; }
+
+    .level-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin: 8px 0 4px;
+    }
+    .level-badge.høj { background: #E8F5F1; color: #0D7A5F; }
+    .level-badge.middel { background: #FEF3E2; color: #9A6200; }
+    .level-badge.lav { background: #FDEAEA; color: #B91C1C; }
+
+    .est-label { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+
+    .track { height: 4px; background: var(--surface2); border-radius: 2px; margin-bottom: 1rem; overflow: hidden; }
+    .track-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); width: 0; }
+    .track-fill.gpt { background: var(--gpt-color); }
+    .track-fill.google { background: var(--google-color); }
+
+    .context-list { list-style: none; }
+    .context-list li {
+      font-size: 13px; color: var(--text2);
+      padding: 5px 0; border-bottom: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: flex-start; line-height: 1.5;
+    }
+    .context-list li:last-child { border-bottom: none; }
+    .context-list li i { font-size: 13px; color: var(--text3); margin-top: 2px; flex-shrink: 0; }
+
+    /* SUMMARY */
+    .summary-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.75;
+    }
+
+    /* RECS */
+    .recs-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .recs-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.3px;
+    }
+    .rec-row {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px; color: var(--text2); line-height: 1.6;
+    }
+    .rec-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .rec-row i { font-size: 18px; color: var(--text3); flex-shrink: 0; margin-top: 1px; }
+
+    /* LOADING */
+    .loading-inner {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 200px; gap: 12px;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--text);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-txt { font-size: 13px; color: var(--text3); }
+
+    /* ERROR */
+    .error-bar {
+      background: #FDEAEA; color: #B91C1C;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      font-size: 13px;
+      margin-top: 1rem;
+      display: none;
+      align-items: center; gap: 8px;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      font-size: 13px;
+      color: var(--text3);
+      border-top: 1px solid var(--border);
+      margin-top: 4rem;
+    }
+    footer a { color: var(--text2); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* HOW IT WORKS */
+    .how {
+      max-width: 720px;
+      margin: 0 auto 5rem;
+      padding: 0 2rem;
+    }
+    .how-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 600px) { .how-grid { grid-template-columns: 1fr; } }
+    .how-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+    .how-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      color: var(--border2);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .how-item h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .how-item p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">AI Synlighedstjek</a>
+  <span class="nav-badge">Gratis</span>
+</nav>
+
+<main>
+  <section class="hero">
+    <p class="hero-eyebrow">GEO — Generative Engine Optimization</p>
+    <h1>Er dit brand synligt<br>i <em>AI-søgning?</em></h1>
+    <p class="hero-sub">Analyser dit domænes synlighed i ChatGPT og Google AI Overview — og få konkrete anbefalinger til at blive nævnt oftere.</p>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <input type="text" id="urlInput" placeholder="ditdomæne.dk" autocomplete="off" spellcheck="false" />
+        <button id="checkBtn" onclick="runCheck()">
+          <i class="ti ti-search"></i> Analysér
+        </button>
+      </div>
+      <p class="search-hint">Prøv fx <span style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;" onclick="prefill('dr.dk')">dr.dk</span> · <span style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;" onclick="prefill('novonordisk.com')">novonordisk.com</span> · <span style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;" onclick="prefill('kendskab.dk')">kendskab.dk</span></p>
+      <div class="error-bar" id="errorBar"><i class="ti ti-alert-circle"></i> <span id="errorText"></span></div>
+    </div>
+  </section>
+
+  <section class="results" id="results">
+    <div class="results-domain">
+      <p class="label">Analyse af</p>
+      <p class="domain-name" id="domainDisplay"></p>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card" id="gptCard">
+        <div class="card-header">
+          <div class="card-icon gpt"><i class="ti ti-brain"></i></div>
+          <div>
+            <div class="card-platform">ChatGPT</div>
+            <div class="card-sub">OpenAI GPT-4o</div>
+          </div>
+        </div>
+        <div id="gptContent"><div class="loading-inner"><div class="spinner"></div><p class="loading-txt">Analyserer...</p></div></div>
+      </div>
+
+      <div class="card" id="googleCard">
+        <div class="card-header">
+          <div class="card-icon google"><i class="ti ti-robot"></i></div>
+          <div>
+            <div class="card-platform">Google AI Overview</div>
+            <div class="card-sub">Gemini-baseret</div>
+          </div>
+        </div>
+        <div id="googleContent"><div class="loading-inner"><div class="spinner"></div><p class="loading-txt">Analyserer...</p></div></div>
+      </div>
+    </div>
+
+    <div class="summary-block" id="summaryBlock" style="display:none;"></div>
+
+    <div class="recs-block" id="recsBlock" style="display:none;">
+      <p class="recs-title">Sådan forbedrer du din AI-synlighed</p>
+      <div id="recsContent"></div>
+    </div>
+  </section>
+
+  <section class="how" id="howSection">
+    <h2 class="how-title">Sådan virker det</h2>
+    <div class="how-grid">
+      <div class="how-item">
+        <div class="how-num">01</div>
+        <h3>Indtast dit domæne</h3>
+        <p>Skriv din hjemmesideadresse — uden https:// — og klik analysér.</p>
+      </div>
+      <div class="how-item">
+        <div class="how-num">02</div>
+        <h3>AI analyserer dit brand</h3>
+        <p>Vi bruger Claude til at estimere din synlighed i ChatGPT og Google AI Overview baseret på brandets kendetegn og online autoritet.</p>
+      </div>
+      <div class="how-item">
+        <div class="how-num">03</div>
+        <h3>Få konkrete anbefalinger</h3>
+        <p>Du modtager en score og 4 handlingsrettede råd til at blive nævnt oftere i AI-svar.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Drevet af <a href="https://anthropic.com" target="_blank">Claude AI</a> · Bygget til GEO-bevidste marketingfolk</p>
+</footer>
+
+<script>
+function prefill(val) {
+  document.getElementById("urlInput").value = val;
+  document.getElementById("urlInput").focus();
+}
+
+function levelBadge(level) {
+  const icons = { "høj": "ti-trending-up", "middel": "ti-minus", "lav": "ti-trending-down" };
+  const labels = { "høj": "Høj synlighed", "middel": "Middel synlighed", "lav": "Lav synlighed" };
+  return `<span class="level-badge ${level}"><i class="ti ${icons[level] || 'ti-minus'}"></i>${labels[level] || level}</span>`;
+}
+
+function renderPlatform(d, type) {
+  const score = Math.round(d.visibility_score);
+  const note = type === "gpt" ? d.training_data_presence : d.indexing_notes;
+  return `
+    <div style="margin-bottom:4px;">
+      <span class="score-big">${score}</span><span class="score-denom">/100</span>
+    </div>
+    ${levelBadge(d.level)}
+    <p class="est-label">${d.estimated_mentions || ""}</p>
+    <div class="track"><div class="track-fill ${type}" data-target="${score}"></div></div>
+    <ul class="context-list">
+      ${(d.contexts || []).slice(0,3).map(c => `<li><i class="ti ti-point-filled"></i><span>${c}</span></li>`).join("")}
+      ${note ? `<li><i class="ti ti-info-circle"></i><span style="font-style:italic;font-size:12px;">${note}</span></li>` : ""}
+    </ul>`;
+}
+
+async function runCheck() {
+  const raw = document.getElementById("urlInput").value.trim();
+  if (!raw) return;
+  const domain = raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "").toLowerCase();
+
+  const btn = document.getElementById("checkBtn");
+  const errBar = document.getElementById("errorBar");
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Analyserer`;
+  errBar.style.display = "none";
+
+  document.getElementById("domainDisplay").textContent = domain;
+  document.getElementById("gptContent").innerHTML = `<div class="loading-inner"><div class="spinner"></div><p class="loading-txt">Henter ChatGPT-data...</p></div>`;
+  document.getElementById("googleContent").innerHTML = `<div class="loading-inner"><div class="spinner"></div><p class="loading-txt">Henter Google AI-data...</p></div>`;
+  document.getElementById("summaryBlock").style.display = "none";
+  document.getElementById("recsBlock").style.display = "none";
+  document.getElementById("results").classList.add("visible");
+  document.getElementById("howSection").style.display = "none";
+  document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  try {
+    const res = await fetch("/api/analyse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ domain })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || `HTTP ${res.status}`);
+    }
+    const result = await res.json();
+
+    document.getElementById("gptContent").innerHTML = renderPlatform(result.chatgpt, "gpt");
+    document.getElementById("googleContent").innerHTML = renderPlatform(result.google_ai, "google");
+
+    setTimeout(() => {
+      document.querySelectorAll(".track-fill[data-target]").forEach(el => {
+        el.style.width = el.dataset.target + "%";
+      });
+    }, 80);
+
+    if (result.summary) {
+      document.getElementById("summaryBlock").innerHTML = result.summary;
+      document.getElementById("summaryBlock").style.display = "block";
+    }
+
+    if (result.recommendations?.length) {
+      document.getElementById("recsContent").innerHTML = result.recommendations.map(r =>
+        `<div class="rec-row"><i class="ti ${r.icon || 'ti-bulb'}"></i><span>${r.text}</span></div>`
+      ).join("");
+      document.getElementById("recsBlock").style.display = "block";
+    }
+
+  } catch (err) {
+    document.getElementById("gptContent").innerHTML = `<div class="loading-inner"><i class="ti ti-alert-circle" style="font-size:28px;color:#B91C1C;"></i><p class="loading-txt" style="color:#B91C1C;">Kunne ikke hente data</p></div>`;
+    document.getElementById("googleContent").innerHTML = `<div class="loading-inner"><i class="ti ti-alert-circle" style="font-size:28px;color:#B91C1C;"></i><p class="loading-txt" style="color:#B91C1C;">Kunne ikke hente data</p></div>`;
+    document.getElementById("errorText").textContent = err.message;
+    errBar.style.display = "flex";
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<i class="ti ti-search"></i> Analysér`;
+}
+
+document.getElementById("urlInput").addEventListener("keydown", e => { if (e.key === "Enter") runCheck(); });
+</script>
+</body>
+</html>
